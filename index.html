@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>itti Calendar Converter</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 40px; padding-top: 20px; }
+
+  h1 {
+    color: #00d4ff;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+  }
+
+  .tagline { color: #888; font-size: 1em; font-weight: 300; }
+
+  .card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 25px;
+    backdrop-filter: blur(10px);
+  }
+
+  .card-title {
+    color: #00d4ff;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    color: #999;
+    font-size: 0.8em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1em;
+    transition: all 0.3s;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    outline: none;
+    border-color: #00d4ff;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    margin-top: 10px;
+  }
+
+  .btn-secondary:hover {
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+  }
+
+  .result-card {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border-left: 4px solid #00d4ff;
+    display: none;
+  }
+
+  .result-card.visible {
+    display: block;
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .itti-primary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .itti-block {
+    font-size: 1.8em;
+    color: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-inblock {
+    font-size: 1.8em;
+    color: #00d4ff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-inblock small {
+    font-size: 0.55em;
+    color: #888;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+
+  .itti-time {
+    font-size: 1.8em;
+    color: #000;
+    background: #00d4ff;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-subtitle {
+    color: #888;
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .conversion-steps {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .step {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  .step:last-child { border-bottom: none; }
+  .step-label { color: #888; }
+  .step-value { color: #00d4ff; font-weight: 600; }
+
+  .info-section {
+    background: rgba(255, 193, 7, 0.08);
+    border-left: 4px solid #ffc107;
+  }
+
+  .info-section h3 { color: #ffc107; margin-bottom: 15px; font-size: 1em; }
+  .info-section p  { color: #ccc; font-size: 0.9em; margin-bottom: 10px; }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .spec-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+  }
+
+  .spec-item strong {
+    color: #00d4ff;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8em; }
+    .itti-block, .itti-inblock, .itti-time { font-size: 1.3em; }
+    .card { padding: 20px; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+  <header>
+    <h1>ITTI CALENDAR</h1>
+    <p class="tagline">32-Hour Days &bull; Epoch 1 Jan 0001 &bull; Zero Skipped Days</p>
+  </header>
+
+  <!-- Input Card -->
+  <div class="card">
+    <div class="card-title">Enter Gregorian Date &amp; Time</div>
+    <div class="input-grid">
+      <div class="field">
+        <label for="day">Day</label>
+        <input type="number" id="day" min="1" max="31" value="10">
+      </div>
+      <div class="field">
+        <label for="month">Month</label>
+        <select id="month">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11" selected>November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="year">Year</label>
+        <input type="number" id="year" min="1" value="1996">
+      </div>
+    </div>
+    <div class="input-grid">
+      <div class="field">
+        <label for="hour">Hour</label>
+        <input type="number" id="hour" min="0" max="23" value="19">
+      </div>
+      <div class="field">
+        <label for="minute">Minute</label>
+        <input type="number" id="minute" min="0" max="59" value="32">
+      </div>
+      <div class="field">
+        <label for="second">Second</label>
+        <input type="number" id="second" min="0" max="59" value="0">
+      </div>
+    </div>
+    <button class="btn" id="convertBtn">Convert to itti</button>
+    <button class="btn btn-secondary" id="nowBtn">Use Current Time</button>
+  </div>
+
+  <!-- Result Card -->
+  <div class="card result-card" id="resultCard">
+    <div class="card-title">itti Conversion Result</div>
+
+    <div class="itti-primary">
+      <div class="itti-block" id="ittiyear"></div>
+      <div class="itti-inblock" id="ittiInyear"></div>
+      <div class="itti-time" id="ittiTime"></div>
+    </div>
+    <div class="itti-subtitle" id="ittiSubtitle"></div>
+
+    <div class="conversion-steps" id="conversionSteps"></div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="card info-section">
+    <h3>⚠️ Why Julian Day Number?</h3>
+    <p>The Gregorian calendar skipped days historically (1582, 1752, 1918). These gaps make it unusable for continuous itti conversion.</p>
+    <p>We use the <strong>Julian Day Number (JDN)</strong> — a continuous count where every day is numbered sequentially with zero gaps — and set the itti epoch at <strong>JDN 1,721,426 = 1 January 0001</strong> (the start of the Common Era).</p>
+  </div>
+
+  <!-- Specifications Card -->
+  <div class="card">
+    <div class="card-title">itti Time Specifications</div>
+    <div class="specs-grid">
+      <div class="spec-item">
+        <strong>1 itti Day</strong>
+        32 standard hours<br>115,200 seconds
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Hour</strong>
+        1/30 of a day<br>64 standard minutes
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Minute</strong>
+        1/30 of an hour<br>128 standard seconds
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Second</strong>
+        1/30 of a minute<br>~4.27 standard seconds
+      </div>
+    </div>
+    <div class="specs-grid" style="margin-top: 15px;">
+      <div class="spec-item">
+        <strong>Full Day</strong>
+        30 itti hours = 900 itti minutes<br>= 27,000 itti seconds = 32 standard hours
+      </div>
+      <div class="spec-item">
+        <strong>itti Year</strong>
+        900 itti days<br>= 1,200 standard days ≈ 3.28 standard years
+      </div>
+      <div class="spec-item">
+        <strong>itti Epoch</strong>
+        1 January 0001 (start of Common Era)<br>= JDN 1,721,426
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- Constants ---------- */
+const ITTI_DAY_SECONDS    = 32 * 3600;                // 115,200
+const ITTI_HOUR_SECONDS   = ITTI_DAY_SECONDS / 30;    // 3,840
+const ITTI_MINUTE_SECONDS = ITTI_HOUR_SECONDS / 30;   // 128
+const ITTI_SECOND_SECONDS = ITTI_MINUTE_SECONDS / 30; // ≈ 4.2667
+const ITTI_YEAR_DAYS      = 900;                      // 1 itti year = 900 itti days
+
+/* itti epoch = JDN for 1 January 0001 (start of 1 AD) */
+const JDN_EPOCH = 1721426;
+
+/* ---------- Calendar helpers ---------- */
+const MONTH_DAYS  = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+
+const isLeapYear  = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const daysInMonth = (y, m) => (m === 2 && isLeapYear(y)) ? 29 : MONTH_DAYS[m - 1];
+
+/* Fliegel–Van Flandern: continuous JDN, no historical gaps. */
+function gregorianToJDN(year, month, day) {
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  return day
+       + Math.floor((153 * m + 2) / 5)
+       + 365 * y
+       + Math.floor(y / 4)
+       - Math.floor(y / 100)
+       + Math.floor(y / 400)
+       - 32045;
+}
+
+/* ---------- Conversion ---------- */
+function convert() {
+  const val = id => parseInt(document.getElementById(id).value, 10);
+
+  const day    = val('day');
+  const month  = val('month');
+  const year   = val('year');
+  const hour   = Number.isInteger(val('hour'))   ? val('hour')   : 0;
+  const minute = Number.isInteger(val('minute')) ? val('minute') : 0;
+  const second = Number.isInteger(val('second')) ? val('second') : 0;
+
+  /* Validation */
+  if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
+    alert('Please fill in day, month and year.');
+    return;
+  }
+  if (year < 1) {
+    alert('Year must be 1 or greater (itti epoch = 1 January 0001).');
+    return;
+  }
+  if (month < 1 || month > 12) {
+    alert('Month must be between 1 and 12.');
+    return;
+  }
+  const maxDay = daysInMonth(year, month);
+  if (day < 1 || day > maxDay) {
+    alert(`Invalid date: ${MONTH_NAMES[month - 1]} ${year} has ${maxDay} days.`);
+    return;
+  }
+
+  /* JDN (zero-gap day count) */
+  const jdn = gregorianToJDN(year, month, day);
+
+  /* Days since itti epoch (1 Jan 0001) */
+  const standardDaysSinceEpoch = jdn - JDN_EPOCH;
+
+  /* Total standard seconds since itti epoch */
+  const totalSeconds =
+    standardDaysSinceEpoch * 86400 + hour * 3600 + minute * 60 + second;
+
+  if (totalSeconds < 0) {
+    alert('Date is before the itti epoch (1 January 0001).');
+    return;
+  }
+
+  /* Total itti days */
+  const ittiDays = Math.floor(totalSeconds / ITTI_DAY_SECONDS);
+
+  /* Year decomposition: 900 itti days per itti year */
+  const ittiYear  = Math.floor(ittiDays / ITTI_YEAR_DAYS);
+  const dayInYear = ittiDays % ITTI_YEAR_DAYS;
+
+  /* Time within the current itti day */
+  let rem = totalSeconds % ITTI_DAY_SECONDS;
+  const ittiHour = Math.floor(rem / ITTI_HOUR_SECONDS);
+  rem -= ittiHour * ITTI_HOUR_SECONDS;
+  const ittiMinute = Math.floor(rem / ITTI_MINUTE_SECONDS);
+  rem -= ittiMinute * ITTI_MINUTE_SECONDS;
+  const ittiSecond = Math.floor(rem / ITTI_SECOND_SECONDS);
+
+  const pad = n => String(n).padStart(2, '0');
+
+  /* Standard-year equivalent for intuition */
+  const standardYears = standardDaysSinceEpoch / 365.2425;
+
+  /* Render */
+  document.getElementById('ittiyear').textContent   = `itti Year ${ittiYear.toLocaleString()}`;
+  document.getElementById('ittiInyear').innerHTML   = `Day ${dayInYear}<small> / 900</small>`;
+  document.getElementById('ittiTime').textContent   =
+    `${pad(ittiHour)}:${pad(ittiMinute)}:${pad(ittiSecond)}`;
+  document.getElementById('ittiSubtitle').textContent =
+    `${ittiDays.toLocaleString()} itti days since 1 Jan 0001  •  ≈ ${standardYears.toFixed(1)} standard years`;
+
+  const fraction      = (totalSeconds % ITTI_DAY_SECONDS) / ITTI_DAY_SECONDS;
+  const percentOfDay  = (fraction * 100).toFixed(2);
+  const totalIttiMins = ittiHour * 30 + ittiMinute;
+
+  document.getElementById('conversionSteps').innerHTML = `
+    <div class="step">
+      <span class="step-label">Input Date</span>
+      <span class="step-value">${day} ${MONTH_NAMES[month - 1]} ${year}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Input Time</span>
+      <span class="step-value">${pad(hour)}:${pad(minute)}:${pad(second)}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Julian Day Number</span>
+      <span class="step-value">${jdn.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">JDN − Epoch (1 Jan 0001)</span>
+      <span class="step-value">${standardDaysSinceEpoch.toLocaleString()} standard days</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Total Seconds</span>
+      <span class="step-value">${totalSeconds.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">itti Day Number</span>
+      <span class="step-value">${ittiDays.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">itti Year · Day</span>
+      <span class="step-value">${ittiYear.toLocaleString()} · ${dayInYear}/900</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Day Progress</span>
+      <span class="step-value">${totalIttiMins}/900 (${percentOfDay}%)</span>
+    </div>
+  `;
+
+  document.getElementById('resultCard').classList.add('visible');
+}
+
+/* ---------- Use Current Time ---------- */
+function setNow() {
+  const now = new Date();
+  document.getElementById('day').value    = now.getDate();
+  document.getElementById('month').value  = now.getMonth() + 1;
+  document.getElementById('year').value   = now.getFullYear();
+  document.getElementById('hour').value   = now.getHours();
+  document.getElementById('minute').value = now.getMinutes();
+  document.getElementById('second').value = now.getSeconds();
+  convert();
+}
+
+/* ---------- Wire up ---------- */
+document.getElementById('convertBtn').addEventListener('click', convert);
+document.getElementById('nowBtn').addEventListener('click', setNow);
+</script>
+</body>
+</html>
