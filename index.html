@@ -3,424 +3,508 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spanish → itti Converter v14</title>
+<title>itti Calendar Converter</title>
 <style>
-body { font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif; background:#f4f7f6;
-       color:#333; max-width:640px; margin:40px auto; padding:20px; }
-.container { background:#fff; padding:30px; border-radius:12px; box-shadow:0 4px 10px rgba(0,0,0,.1); }
-h1 { color:#2c3e50; text-align:center; }
-p.sub { text-align:center;font-size:14px;color:#777; }
-label { font-weight:bold; display:block; margin-top:15px; margin-bottom:5px; }
-select, input[type=text] { width:100%; padding:10px; border:1px solid #ccc; border-radius:6px;
-                font-size:16px; box-sizing:border-box; }
-.toggle-row { display:flex; align-items:center; gap:8px; margin-top:12px;
-              font-weight:normal; font-size:14px; color:#555; }
-.toggle-row input { width:auto; }
-.toggle-row label { margin:0; font-weight:normal; font-size:14px; }
-button { width:100%; background:#3498db; color:#fff; padding:12px; margin-top:25px;
-         border:none; border-radius:6px; font-size:16px; font-weight:bold; cursor:pointer;
-         transition:background .3s; }
-button:hover { background:#2980b9; }
-.output-box { margin-top:25px; padding:20px; background:#e8f4fd; border-left:5px solid #3498db;
-              border-radius:4px; font-size:18px; word-wrap:break-word; }
-.output-box.long { background:#fdf3e7; border-left-color:#e67e22; }
-.debug-info { font-size:12px; color:#7f8c8d; margin-top:10px; line-height:1.6; }
-.debug-info code { background:#eef3f7; padding:1px 5px; border-radius:3px; }
-.debug-info .stage { color:#e67e22; font-weight:bold; }
-.badge { display:inline-block; padding:2px 8px; border-radius:10px; font-size:11px;
-         font-weight:bold; margin-left:6px; vertical-align:middle; }
-.badge.short { background:#3498db; color:#fff; }
-.badge.long  { background:#e67e22; color:#fff; }
-.dropped { text-decoration:line-through; color:#c0392b; opacity:.6; }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: linear-gradient(135deg, #0c0c1d 0%, #1a1a2e 50%, #16213e 100%);
+    color: #e0e0e0;
+    min-height: 100vh;
+    padding: 20px;
+    line-height: 1.6;
+  }
+
+  .container { max-width: 800px; margin: 0 auto; }
+
+  header { text-align: center; margin-bottom: 40px; padding-top: 20px; }
+
+  h1 {
+    color: #00d4ff;
+    font-size: 2.5em;
+    margin-bottom: 10px;
+    font-weight: 300;
+    letter-spacing: 2px;
+  }
+
+  .tagline { color: #888; font-size: 1em; font-weight: 300; }
+
+  .card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 16px;
+    padding: 30px;
+    margin-bottom: 25px;
+    backdrop-filter: blur(10px);
+  }
+
+  .card-title {
+    color: #00d4ff;
+    font-size: 1.1em;
+    margin-bottom: 20px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .input-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+  }
+
+  .field label {
+    display: block;
+    color: #999;
+    font-size: 0.8em;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .field input,
+  .field select {
+    width: 100%;
+    padding: 12px;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 1em;
+    transition: all 0.3s;
+  }
+
+  .field input:focus,
+  .field select:focus {
+    outline: none;
+    border-color: #00d4ff;
+    background: rgba(0, 0, 0, 0.5);
+  }
+
+  .btn {
+    width: 100%;
+    padding: 14px;
+    background: linear-gradient(135deg, #00d4ff 0%, #0099cc 100%);
+    color: #000;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 212, 255, 0.3);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+    margin-top: 10px;
+  }
+
+  .btn-secondary:hover {
+    box-shadow: 0 5px 20px rgba(255, 107, 107, 0.3);
+  }
+
+  .result-card {
+    background: linear-gradient(135deg, rgba(0, 212, 255, 0.1) 0%, rgba(0, 212, 255, 0.05) 100%);
+    border-left: 4px solid #00d4ff;
+    display: none;
+  }
+
+  .result-card.visible {
+    display: block;
+    animation: slideIn 0.4s ease-out;
+  }
+
+  @keyframes slideIn {
+    from { opacity: 0; transform: translateX(-20px); }
+    to { opacity: 1; transform: translateX(0); }
+  }
+
+  .itti-primary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+
+  .itti-block {
+    font-size: 1.8em;
+    color: #fff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-inblock {
+    font-size: 1.8em;
+    color: #00d4ff;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-inblock small {
+    font-size: 0.55em;
+    color: #888;
+    font-weight: 400;
+    letter-spacing: 1px;
+  }
+
+  .itti-time {
+    font-size: 1.8em;
+    color: #000;
+    background: #00d4ff;
+    padding: 10px 25px;
+    border-radius: 10px;
+    font-family: 'Courier New', monospace;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .itti-subtitle {
+    color: #888;
+    font-size: 0.85em;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+  }
+
+  .conversion-steps {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 20px;
+  }
+
+  .step {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+  }
+
+  .step:last-child { border-bottom: none; }
+  .step-label { color: #888; }
+  .step-value { color: #00d4ff; font-weight: 600; }
+
+  .info-section {
+    background: rgba(255, 193, 7, 0.08);
+    border-left: 4px solid #ffc107;
+  }
+
+  .info-section h3 { color: #ffc107; margin-bottom: 15px; font-size: 1em; }
+  .info-section p  { color: #ccc; font-size: 0.9em; margin-bottom: 10px; }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+  }
+
+  .spec-item {
+    background: rgba(0, 0, 0, 0.2);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 0.85em;
+  }
+
+  .spec-item strong {
+    color: #00d4ff;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  @media (max-width: 600px) {
+    h1 { font-size: 1.8em; }
+    .itti-block, .itti-inblock, .itti-time { font-size: 1.3em; }
+    .card { padding: 20px; }
+  }
 </style>
 </head>
 <body>
 <div class="container">
-<h1>itti Translator</h1>
-<p class="sub">Mode chosen by <strong>SHORT-output length (incl. filler)</strong>:
-if it exceeds 4 syllables → LONG.<br>
-LONG: remove r/rr/l before conversion · keep s, ll, ch · SHORT: unchanged</p>
+  <header>
+    <h1>ITTI CALENDAR</h1>
+    <p class="tagline">32-Hour Days &bull; Epoch 1 Jan 0001 &bull; Zero Skipped Days</p>
+  </header>
 
-<label for="spanishInput">Input Word or Phrase:</label>
-<input type="text" id="spanishInput" placeholder="necesidad, tristeza, skat, tratratatataltaltraltral" autocomplete="off">
+  <!-- Input Card -->
+  <div class="card">
+    <div class="card-title">Enter Gregorian Date &amp; Time</div>
+    <div class="input-grid">
+      <div class="field">
+        <label for="day">Day</label>
+        <input type="number" id="day" min="1" max="31" value="10">
+      </div>
+      <div class="field">
+        <label for="month">Month</label>
+        <select id="month">
+          <option value="1">January</option>
+          <option value="2">February</option>
+          <option value="3">March</option>
+          <option value="4">April</option>
+          <option value="5">May</option>
+          <option value="6">June</option>
+          <option value="7">July</option>
+          <option value="8">August</option>
+          <option value="9">September</option>
+          <option value="10">October</option>
+          <option value="11" selected>November</option>
+          <option value="12">December</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="year">Year</label>
+        <input type="number" id="year" min="1" value="1996">
+      </div>
+    </div>
+    <div class="input-grid">
+      <div class="field">
+        <label for="hour">Hour</label>
+        <input type="number" id="hour" min="0" max="23" value="19">
+      </div>
+      <div class="field">
+        <label for="minute">Minute</label>
+        <input type="number" id="minute" min="0" max="59" value="32">
+      </div>
+      <div class="field">
+        <label for="second">Second</label>
+        <input type="number" id="second" min="0" max="59" value="0">
+      </div>
+    </div>
+    <button class="btn" id="convertBtn">Convert to itti</button>
+    <button class="btn btn-secondary" id="nowBtn">Use Current Time</button>
+  </div>
 
-<div class="toggle-row">
-  <input type="checkbox" id="seseToggle" checked>
-  <label for="seseToggle">Seseo (<code>c+e/i → s</code> instead of <code>z</code>)</label>
-</div>
+  <!-- Result Card -->
+  <div class="card result-card" id="resultCard">
+    <div class="card-title">itti Conversion Result</div>
 
-<label for="definingSound">Defining Sound (category):</label>
-<select id="definingSound">
-  <optgroup label="General & States">
-    <option value="gif">gif (Spatial Relationship)</option>
-    <option value="gin">gin (State / Government)</option>
-    <option value="gip">gip (Physical Land / Earth)</option>
-    <option value="gik">gik (Land controlled by State)</option>
-  </optgroup>
-  <optgroup label="Nature, Objects & Concepts">
-    <option value="tif">tif (Animal / Body part / Derivative)</option>
-    <option value="tin">tin (measurements)</option>
-    <option value="tip" selected>tip (all others)</option>
-    <option value="tik">tik (Emotion)</option>
-  </optgroup>
-  <optgroup label="Names & Foreign Words">
-    <option value="bi">bi (itti name — converted, no ender)</option>
-    <option value="bin">bin (Foreign name — kept as-is, ends with bif)</option>
-    <option value="bip">bip (Foreign word/sentence — kept as-is, ends with bif)</option>
-    <option value="bik">bik (Onomatopoeia — converted)</option>
-  </optgroup>
-</select>
+    <div class="itti-primary">
+      <div class="itti-block" id="ittiyear"></div>
+      <div class="itti-inblock" id="ittiInyear"></div>
+      <div class="itti-time" id="ittiTime"></div>
+    </div>
+    <div class="itti-subtitle" id="ittiSubtitle"></div>
 
-<button onclick="translateToitti()">Translate to itti</button>
-<div id="outputContainer" style="display:none;">
-  <div class="output-box" id="output"></div>
-  <div class="debug-info" id="debug"></div>
-</div>
+    <div class="conversion-steps" id="conversionSteps"></div>
+  </div>
+
+  <!-- Info Card -->
+  <div class="card info-section">
+    <h3>⚠️ Why Julian Day Number?</h3>
+    <p>The Gregorian calendar skipped days historically (1582, 1752, 1918). These gaps make it unusable for continuous itti conversion.</p>
+    <p>We use the <strong>Julian Day Number (JDN)</strong> — a continuous count where every day is numbered sequentially with zero gaps — and set the itti epoch at <strong>JDN 1,721,426 = 1 January 0001</strong> (the start of the Common Era).</p>
+  </div>
+
+  <!-- Specifications Card -->
+  <div class="card">
+    <div class="card-title">itti Time Specifications</div>
+    <div class="specs-grid">
+      <div class="spec-item">
+        <strong>1 itti Day</strong>
+        32 standard hours<br>115,200 seconds
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Hour</strong>
+        1/30 of a day<br>64 standard minutes
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Minute</strong>
+        1/30 of an hour<br>128 standard seconds
+      </div>
+      <div class="spec-item">
+        <strong>1 itti Second</strong>
+        1/30 of a minute<br>~4.27 standard seconds
+      </div>
+    </div>
+    <div class="specs-grid" style="margin-top: 15px;">
+      <div class="spec-item">
+        <strong>Full Day</strong>
+        30 itti hours = 900 itti minutes<br>= 27,000 itti seconds = 32 standard hours
+      </div>
+      <div class="spec-item">
+        <strong>itti Year</strong>
+        900 itti days<br>= 1,200 standard days ≈ 3.28 standard years
+      </div>
+      <div class="spec-item">
+        <strong>itti Epoch</strong>
+        1 January 0001 (start of Common Era)<br>= JDN 1,721,426
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-// ─── Position tables ───
-const TEMPLATES = {
-  a:['f','f'], b:['n','f'], c:['p','f'], d:['k','f'],
-  e:['f','n'], f:['n','n'], g:['p','n'], h:['k','n'],
-  i:['f','p'], j:['n','p'], k:['p','p'], l:['k','p'],
-  m:['f','k'], n:['n','k'], o:['p','k'], p:['k','k'],
-  q:['f',''],  r:['n',''],  s:['p',''],  t:['k',''],
-  u:['','f'],  v:['','n'],  w:['','p'],  x:['','k']
-};
-const VOWELS = 'aeiou';
+/* ---------- Constants ---------- */
+const ITTI_DAY_SECONDS    = 32 * 3600;                // 115,200
+const ITTI_HOUR_SECONDS   = ITTI_DAY_SECONDS / 30;    // 3,840
+const ITTI_MINUTE_SECONDS = ITTI_HOUR_SECONDS / 30;   // 128
+const ITTI_SECOND_SECONDS = ITTI_MINUTE_SECONDS / 30; // ≈ 4.2667
+const ITTI_YEAR_DAYS      = 900;                      // 1 itti year = 900 itti days
 
-const LONG_ONSET = {
-  a:'b',  b:'d',  c:'k',  d:'n',   e:'f',   f:'t',   g:'m',
-  h:'sb', i:'sd', j:'sk', k:'sn',  l:'sf',  m:'st',  n:'sm',
-  o:'shb',p:'shd',q:'shk',r:'shn', s:'shf', t:'sht', u:'shm',
-  v:'s',  w:'sh', x:'z'
-};
-const LONG_CODA = {
-  a:{on:'', co:'', s:false}, b:{on:'', co:'r', s:false}, c:{on:'', co:'l', s:false},
-  d:{on:'w', co:'', s:false}, e:{on:'w', co:'r', s:false}, f:{on:'w', co:'l', s:false},
-  g:{on:'l', co:'', s:false}, h:{on:'l', co:'r', s:false}, i:{on:'l', co:'l', s:false},
-  j:{on:'r', co:'', s:false}, k:{on:'r', co:'r', s:false}, l:{on:'r', co:'l', s:false},
-  m:{on:'', co:'', s:true},   n:{on:'', co:'r', s:true},   o:{on:'', co:'l', s:true},
-  p:{on:'w', co:'', s:true},  q:{on:'w', co:'r', s:true},  r:{on:'w', co:'l', s:true},
-  s:{on:'l', co:'', s:true},  t:{on:'l', co:'r', s:true},  u:{on:'l', co:'l', s:true},
-  v:{on:'r', co:'', s:true},  w:{on:'r', co:'r', s:true},  x:{on:'r', co:'l', s:true}
-};
-const VOWEL_BRIDGE = { a:'b', e:'d', i:'k', o:'n', u:'f' };
+/* itti epoch = JDN for 1 January 0001 (start of 1 AD) */
+const JDN_EPOCH = 1721426;
 
-// ─── Shared preprocessing ───
-function spanishToSound(raw, sese) {
-  let word = raw.toLowerCase().replace(/[^a-záéíóúüñ]/g, '');
-  word = word.replace(/ch/g, '\u00A7CH\u00A7');
-  word = word.replace(/gü([ei])/g, 'gw$1');
-  word = word.replace(/qü([ei])/g, 'kw$1');
-  word = word.replace(/qu([ei])/g, 'k$1');
-  word = word.replace(/gu([ei])/g, 'G$1');
-  word = word.replace(/c([ei])/g, sese ? 's$1' : 'z$1');
-  word = word.replace(/c([aou])/g, 'k$1');
-  word = word.replace(/c$/g, 'k');
-  word = word.replace(/c(?=[^aeiou])/g, 'k');
-  word = word.replace(/g([ei])/g, 'j$1');
-  word = word.replace(/G/g, 'g');
-  word = word.replace(/[áéíóú]/g, c => ({á:'a',é:'e',í:'i',ó:'o',ú:'u'}[c]));
-  word = word.replace(/h/g, '');
-  word = word.replace(/\u00A7CH\u00A7/g, 'ch');
-  return word;
+/* ---------- Calendar helpers ---------- */
+const MONTH_DAYS  = [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+const MONTH_NAMES = ['January','February','March','April','May','June',
+                     'July','August','September','October','November','December'];
+
+const isLeapYear  = y => (y % 4 === 0 && y % 100 !== 0) || y % 400 === 0;
+const daysInMonth = (y, m) => (m === 2 && isLeapYear(y)) ? 29 : MONTH_DAYS[m - 1];
+
+/* Fliegel–Van Flandern: continuous JDN, no historical gaps. */
+function gregorianToJDN(year, month, day) {
+  const a = Math.floor((14 - month) / 12);
+  const y = year + 4800 - a;
+  const m = month + 12 * a - 3;
+  return day
+       + Math.floor((153 * m + 2) / 5)
+       + 365 * y
+       + Math.floor(y / 4)
+       - Math.floor(y / 100)
+       + Math.floor(y / 400)
+       - 32045;
 }
 
-// ─── Tokenizer ───
-function tokenize(word) {
-  const t = [];
-  let i = 0;
-  while (i < word.length) {
-    const c  = word[i];
-    const c2 = word.substr(i, 2);
-    if (c2 === 'ch') { t.push({ type:'cons',   letter:'a', orig:'ch' }); i+=2; continue; }
-    if (c2 === 'll') { t.push({ type:'cons',   letter:'e', orig:'ll' }); i+=2; continue; }
-    if (c2 === 'rr') { t.push({ type:'Rsound', orig:'rr' });             i+=2; continue; }
-    if (c === 'ñ')   { t.push({ type:'cons',   letter:'h', orig:'ñ'  }); i++;  continue; }
-    if (c === 'z')   { t.push({ type:'cons',   letter:'r', orig:'z'  }); i++;  continue; }
-    if (c === 'y')   { t.push({ type:'cons',   letter:'l', orig:'y'  }); i++;  continue; }
-    if (c === 'r' && i === 0) { t.push({ type:'Rsound', orig:'r' });     i++;  continue; }
-    if (c === 'r')   { t.push({ type:'liquid', letter:'r' });            i++;  continue; }
-    if (c === 'l')   { t.push({ type:'liquid', letter:'l' });            i++;  continue; }
-    if (VOWELS.includes(c)) { t.push({ type:'vowel', letter:c });        i++;  continue; }
-    if (TEMPLATES[c]) { t.push({ type:'cons', letter:c });               i++;  continue; }
-    i++;
+/* ---------- Conversion ---------- */
+function convert() {
+  const val = id => parseInt(document.getElementById(id).value, 10);
+
+  const day    = val('day');
+  const month  = val('month');
+  const year   = val('year');
+  const hour   = Number.isInteger(val('hour'))   ? val('hour')   : 0;
+  const minute = Number.isInteger(val('minute')) ? val('minute') : 0;
+  const second = Number.isInteger(val('second')) ? val('second') : 0;
+
+  /* Validation */
+  if (!Number.isInteger(day) || !Number.isInteger(month) || !Number.isInteger(year)) {
+    alert('Please fill in day, month and year.');
+    return;
   }
-  return t;
-}
-
-// ─── Syllabifier ───
-function syllabify(tokens) {
-  const vIdx = [];
-  tokens.forEach((tok, i) => { if (tok.type === 'vowel') vIdx.push(i); });
-  if (!vIdx.length) return [];
-  const out = [];
-  for (let vi = 0; vi < vIdx.length; vi++) {
-    const v = vIdx[vi];
-    let onset, coda;
-    if (vi === 0) onset = tokens.slice(0, v);
-    else {
-      const between = tokens.slice(vIdx[vi-1] + 1, v);
-      onset = between.length === 1 ? between
-            : between.length >= 2 ? between.slice(-1) : [];
-    }
-    if (vi === vIdx.length - 1) coda = tokens.slice(v + 1);
-    else {
-      const between = tokens.slice(v + 1, vIdx[vi+1]);
-      coda = between.length >= 2 ? between.slice(0, -1) : [];
-    }
-    out.push({ onset, vowel: tokens[v].letter, coda });
+  if (year < 1) {
+    alert('Year must be 1 or greater (itti epoch = 1 January 0001).');
+    return;
   }
-  return out;
-}
-
-function splitCoda(syl) {
-  const result = [{ onset: syl.onset.slice(), vowel: syl.vowel, coda: [] }];
-  if (syl.onset.length === 0) {
-    result[0].coda = syl.coda.slice();
-    return result;
+  if (month < 1 || month > 12) {
+    alert('Month must be between 1 and 12.');
+    return;
   }
-  for (const tok of syl.coda) {
-    if (tok.type === 'liquid' || tok.type === 'Rsound') result[0].coda.push(tok);
-    else result.push({ onset: [], vowel: syl.vowel, coda: [tok] });
-  }
-  return result;
-}
-
-function splitSOnset(syl) {
-  if (syl.onset.length >= 2 &&
-      syl.onset[0].type === 'cons' &&
-      syl.onset[0].letter === 's') {
-    return [
-      { onset: [syl.onset[0]], vowel: syl.vowel, coda: [] },
-      { onset: syl.onset.slice(1), vowel: syl.vowel, coda: syl.coda }
-    ];
-  }
-  return [syl];
-}
-
-function splitClusters(syl) {
-  const out = [];
-  for (const c of splitCoda(syl)) out.push(...splitSOnset(c));
-  return out;
-}
-
-// ─── SHORT method ───
-function contribution(tok) {
-  if (tok.type === 'liquid') return tok.letter;
-  if (tok.type === 'Rsound') return 'w';
-  if (tok.type === 'cons')   return TEMPLATES[tok.letter][0];
-  return '';
-}
-
-function convertShort(syl) {
-  const mOnset = syl.onset.findIndex(t => t.type === 'cons');
-  const mCoda  = syl.coda.findIndex(t => t.type === 'cons');
-  const main   = mOnset >= 0 ? syl.onset[mOnset]
-               : mCoda  >= 0 ? syl.coda[mCoda]
-               : null;
-  let out = '';
-  for (const t of syl.onset) {
-    out += (t === main) ? TEMPLATES[t.letter][0] : contribution(t);
-  }
-  if (main && mOnset < 0) out += TEMPLATES[main.letter][0];
-  out += syl.vowel;
-  for (const t of syl.coda) {
-    if (t === main) continue;
-    if (t.type === 'liquid' || t.type === 'Rsound') out += contribution(t);
-  }
-  if (main) out += TEMPLATES[main.letter][1];
-  return out;
-}
-
-// ─── LONG method ───
-function filterLiquids(tokens) {
-  return tokens.filter(tk => tk.type !== 'liquid' && tk.type !== 'Rsound');
-}
-
-function getMainConsonant(syl) {
-  const mOnset = syl.onset.find(t => t.type === 'cons');
-  if (mOnset) return mOnset.letter;
-  const mCoda = syl.coda.find(t => t.type === 'cons');
-  if (mCoda) return mCoda.letter;
-  return null;
-}
-
-function compressPair(s1, s2) {
-  const c1 = getMainConsonant(s1);
-  const c2 = getMainConsonant(s2);
-  const v1 = s1.vowel;
-  const v2 = s2.vowel;
-  const bridge = VOWEL_BRIDGE[v2] || '';
-  let out = '';
-  if (c1) out += LONG_ONSET[c1] || '';
-  if (c2 && LONG_CODA[c2]) out += LONG_CODA[c2].on;
-  out += v1;
-  if (c2 && LONG_CODA[c2]) out += LONG_CODA[c2].co;
-  out += bridge;
-  if (c2 && LONG_CODA[c2] && LONG_CODA[c2].s) out += 's';
-  return out;
-}
-
-function convertLongWord(sound) {
-  const filteredTokens = filterLiquids(tokenize(sound));
-  const filteredSound  = filteredTokens.map(t => t.orig || t.letter).join('');
-  const syls = syllabify(filteredTokens);
-  let split = [];
-  for (const s of syls) split.push(...splitClusters(s));
-
-  const preDrop = split.slice();
-  let dropped = null;
-  if (split.length % 2 !== 0) dropped = split.pop();
-
-  const content = [], pairs = [];
-  for (let i = 0; i < split.length; i += 2) {
-    if (split[i+1]) {
-      content.push(compressPair(split[i], split[i+1]));
-      pairs.push([split[i], split[i+1]]);
-    }
-  }
-  return { content, pairs, preDrop, dropped, filteredSound, filteredTokens };
-}
-
-// ─── Output helpers ───
-function formatOutput(all) {
-  if      (all.length >= 5)  return `${all[0]}-${all[1]}: ${all[2]}--${all[3]}:: ${all.slice(4).join('-')}`;
-  else if (all.length === 4) return `${all[0]}-${all[1]}: ${all[2]}--${all[3]}`;
-  else if (all.length === 3) return `${all[0]}-${all[1]}: ${all[2]}`;
-  else if (all.length === 2) return `${all[0]}-${all[1]}`;
-  else                       return all[0] || '';
-}
-
-function addFillerIfNeeded(content) {
-  let lastV = 'a';
-  outer: for (let i = content.length - 1; i >= 0; i--) {
-    for (let j = content[i].length - 1; j >= 0; j--) {
-      if (VOWELS.includes(content[i][j])) { lastV = content[i][j]; break outer; }
-    }
-  }
-  if ((1 + content.length) % 2 !== 0) {
-    const diff = VOWELS.split('').find(v => v !== lastV) || 'a';
-    content.push('y' + diff);
-  }
-  return content;
-}
-
-function sylStr(s) {
-  const o = s.onset.map(t => t.orig || t.letter).join('') || '∅';
-  return o + s.vowel + s.coda.map(t => t.orig || t.letter).join('');
-}
-
-// ─── Main ───
-function translateToitti() {
-  const raw    = document.getElementById('spanishInput').value.trim();
-  const prefix = document.getElementById('definingSound').value;
-  const sese   = document.getElementById('seseToggle').checked;
-  const outDiv = document.getElementById('output');
-  const dbgDiv = document.getElementById('debug');
-  const cont   = document.getElementById('outputContainer');
-
-  if (!raw) { alert("Please enter a word or phrase."); return; }
-  cont.style.display = 'block';
-  outDiv.classList.remove('long');
-
-  const esc = s => String(s).replace(/[&<>"']/g, c =>
-      ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-  const seseLabel = sese ? 'seseo (c+e/i → s)' : 'distinción (c+e/i → z)';
-
-  // Unconverted foreign names / words
-  if (prefix === 'bin' || prefix === 'bip') {
-    const out = `${prefix} ${raw} bif`;
-    outDiv.innerHTML = `<strong>Result:</strong> ${esc(out)}`;
-    dbgDiv.innerHTML =
-        `<strong>Mode:</strong> unconverted (input preserved exactly)<br>` +
-        `<strong>Starter:</strong> <code>${prefix}</code> · <strong>Ender:</strong> <code>bif</code><br>` +
-        `<strong>Input:</strong> ${esc(raw)}`;
+  const maxDay = daysInMonth(year, month);
+  if (day < 1 || day > maxDay) {
+    alert(`Invalid date: ${MONTH_NAMES[month - 1]} ${year} has ${maxDay} days.`);
     return;
   }
 
-  // Shared preprocessing
-  const sound = spanishToSound(raw, sese);
+  /* JDN (zero-gap day count) */
+  const jdn = gregorianToJDN(year, month, day);
 
-  // ── Build the SHORT output first (this is what the decision is based on) ──
-  const shortSyls = (() => {
-    const t = tokenize(sound);
-    const s = syllabify(t);
-    const out = [];
-    for (const x of s) out.push(...splitClusters(x));
-    return out;
-  })();
-  const shortContent  = shortSyls.map(convertShort);
-  const shortCount    = shortContent.length;                    // pre-filler
-  const shortPreview  = addFillerIfNeeded([...shortContent]);   // **including filler**
-  const shortPreviewLen = shortPreview.length;                  // ← the deciding number
+  /* Days since itti epoch (1 Jan 0001) */
+  const standardDaysSinceEpoch = jdn - JDN_EPOCH;
 
-  // ── Decide mode from the SHORT-output length (incl. filler) ──
-  let usedLong = false;
-  let longInfo = null;
-  let content  = shortContent;
+  /* Total standard seconds since itti epoch */
+  const totalSeconds =
+    standardDaysSinceEpoch * 86400 + hour * 3600 + minute * 60 + second;
 
-  if (shortPreviewLen > 4 && !prefix.startsWith('b')) {
-    const result = convertLongWord(sound);
-    if (result.content.length > 0) {
-      usedLong = true;
-      longInfo = { ...result, shortContent, shortPreview, shortPreviewLen };
-      content  = result.content;
-      outDiv.classList.add('long');
-    }
+  if (totalSeconds < 0) {
+    alert('Date is before the itti epoch (1 January 0001).');
+    return;
   }
 
-  content = addFillerIfNeeded(content);
-  const all = [prefix, ...content];
-  const out = formatOutput(all);
-  const badge = usedLong
-    ? `<span class="badge long">LONG</span>`
-    : `<span class="badge short">SHORT</span>`;
-  outDiv.innerHTML = `<strong>Result:</strong> ${esc(out)} ${badge}`;
+  /* Total itti days */
+  const ittiDays = Math.floor(totalSeconds / ITTI_DAY_SECONDS);
 
-  // ── Debug ──
-  let dbg = '';
-  if (usedLong) {
-    const pairLines = longInfo.pairs.map(([a,b]) =>
-      `<code>${esc(sylStr(a))}+${esc(sylStr(b))}</code> → <code>${esc(compressPair(a,b))}</code>`
-    ).join('<br>');
-    const droppedLine = longInfo.dropped
-      ? `<br><span class="stage">Odd rule:</span> dropped ` +
-        `<span class="dropped"><code>${esc(sylStr(longInfo.dropped))}</code></span>`
-      : '';
-    const allSylls = longInfo.preDrop.map(sylStr);
+  /* Year decomposition: 900 itti days per itti year */
+  const ittiYear  = Math.floor(ittiDays / ITTI_YEAR_DAYS);
+  const dayInYear = ittiDays % ITTI_YEAR_DAYS;
 
-    dbg =
-      `<strong>Mode: LONG</strong> (remove r/rr/l; keep s, ll, ch)<br>` +
-      `<span class="stage">Why LONG:</span> short output would be ` +
-      `${longInfo.shortPreviewLen} syllables (incl. filler) — greater than 4<br>` +
-      `<strong>Original:</strong> ${esc(raw)}<br>` +
-      `<span class="stage">After sound rules</span> (${esc(seseLabel)}): <code>${esc(sound)}</code><br>` +
-      `<span class="stage">After removing r, rr, l:</span> <code>${esc(longInfo.filteredSound)}</code><br>` +
-      `<span class="stage">Syllables (before odd-drop):</span> <code>${esc(allSylls.join(' · '))}</code>` +
-      droppedLine +
-      `<br><span class="stage">Pair compression:</span><br>${pairLines}<br>` +
-      `<em style="color:#aaa;">Short output (with filler) would have been ` +
-      `${longInfo.shortPreviewLen} syllables: ` +
-      `<code>${esc(longInfo.shortPreview.join('-'))}</code></em>`;
-  } else {
-    const syllableLines = shortSyls.map((s,i) =>
-      `<code>${esc(sylStr(s))}</code> → <code>${esc(shortContent[i]||'')}</code>`
-    ).join('<br>');
-    dbg =
-      `<strong>Mode: SHORT</strong> (keeps l, r, rr, ll, s)<br>` +
-      `<span class="stage">Why SHORT:</span> short output would be ` +
-      `${shortPreviewLen} syllables (incl. filler) — 4 or fewer<br>` +
-      `<strong>Original:</strong> ${esc(raw)}<br>` +
-      `<span class="stage">Sound-normalized</span> (${esc(seseLabel)}): <code>${esc(sound)}</code><br>` +
-      `<span class="stage">Syllables:</span><br>${syllableLines}<br>` +
-      `<span class="stage">Short output (incl. filler):</span> ` +
-      `<code>${esc(shortPreview.join('-'))}</code>`;
-  }
-  dbgDiv.innerHTML = dbg;
+  /* Time within the current itti day */
+  let rem = totalSeconds % ITTI_DAY_SECONDS;
+  const ittiHour = Math.floor(rem / ITTI_HOUR_SECONDS);
+  rem -= ittiHour * ITTI_HOUR_SECONDS;
+  const ittiMinute = Math.floor(rem / ITTI_MINUTE_SECONDS);
+  rem -= ittiMinute * ITTI_MINUTE_SECONDS;
+  const ittiSecond = Math.floor(rem / ITTI_SECOND_SECONDS);
+
+  const pad = n => String(n).padStart(2, '0');
+
+  /* Standard-year equivalent for intuition */
+  const standardYears = standardDaysSinceEpoch / 365.2425;
+
+  /* Render */
+  document.getElementById('ittiyear').textContent   = `itti Year ${ittiYear.toLocaleString()}`;
+  document.getElementById('ittiInyear').innerHTML   = `Day ${dayInYear}<small> / 900</small>`;
+  document.getElementById('ittiTime').textContent   =
+    `${pad(ittiHour)}:${pad(ittiMinute)}:${pad(ittiSecond)}`;
+  document.getElementById('ittiSubtitle').textContent =
+    `${ittiDays.toLocaleString()} itti days since 1 Jan 0001  •  ≈ ${standardYears.toFixed(1)} standard years`;
+
+  const fraction      = (totalSeconds % ITTI_DAY_SECONDS) / ITTI_DAY_SECONDS;
+  const percentOfDay  = (fraction * 100).toFixed(2);
+  const totalIttiMins = ittiHour * 30 + ittiMinute;
+
+  document.getElementById('conversionSteps').innerHTML = `
+    <div class="step">
+      <span class="step-label">Input Date</span>
+      <span class="step-value">${day} ${MONTH_NAMES[month - 1]} ${year}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Input Time</span>
+      <span class="step-value">${pad(hour)}:${pad(minute)}:${pad(second)}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Julian Day Number</span>
+      <span class="step-value">${jdn.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">JDN − Epoch (1 Jan 0001)</span>
+      <span class="step-value">${standardDaysSinceEpoch.toLocaleString()} standard days</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Total Seconds</span>
+      <span class="step-value">${totalSeconds.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">itti Day Number</span>
+      <span class="step-value">${ittiDays.toLocaleString()}</span>
+    </div>
+    <div class="step">
+      <span class="step-label">itti Year · Day</span>
+      <span class="step-value">${ittiYear.toLocaleString()} · ${dayInYear}/900</span>
+    </div>
+    <div class="step">
+      <span class="step-label">Day Progress</span>
+      <span class="step-value">${totalIttiMins}/900 (${percentOfDay}%)</span>
+    </div>
+  `;
+
+  document.getElementById('resultCard').classList.add('visible');
 }
+
+/* ---------- Use Current Time ---------- */
+function setNow() {
+  const now = new Date();
+  document.getElementById('day').value    = now.getDate();
+  document.getElementById('month').value  = now.getMonth() + 1;
+  document.getElementById('year').value   = now.getFullYear();
+  document.getElementById('hour').value   = now.getHours();
+  document.getElementById('minute').value = now.getMinutes();
+  document.getElementById('second').value = now.getSeconds();
+  convert();
+}
+
+/* ---------- Wire up ---------- */
+document.getElementById('convertBtn').addEventListener('click', convert);
+document.getElementById('nowBtn').addEventListener('click', setNow);
 </script>
 </body>
 </html>
